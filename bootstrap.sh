@@ -15,8 +15,9 @@
 
 set -euo pipefail
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=Scripts/lib/retry.sh
-source Scripts/lib/retry.sh
+source "${script_dir}/Scripts/lib/retry.sh"
 
 remove_path() {
   local path="$1"

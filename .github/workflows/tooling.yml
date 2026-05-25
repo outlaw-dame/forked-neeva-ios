@@ -30,8 +30,9 @@ jobs:
           node-version: '20'
           cache: npm
 
-      - name: Validate shell syntax
+      - name: Validate shell syntax and executable entrypoint
         run: |
+          test -x bootstrap.sh
           bash -n bootstrap.sh
           bash -n carthage_command.sh
           bash -n Scripts/build-api-config.sh
