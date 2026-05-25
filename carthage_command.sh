@@ -17,9 +17,10 @@ if [[ ! "${deployment_target}" =~ ^[0-9]+([.][0-9]+){0,2}$ ]]; then
   exit 64
 fi
 
-tmp_xcconfig="$(mktemp "${TMPDIR:-/tmp}/neeva-carthage.xcconfig.XXXXXX")"
+tmp_dir="$(mktemp -d "${TMPDIR:-/tmp}/neeva-carthage.XXXXXX")"
+tmp_xcconfig="${tmp_dir}/neeva-carthage.xcconfig"
 cleanup() {
-  rm -f -- "${tmp_xcconfig}"
+  rm -rf -- "${tmp_dir}"
 }
 trap cleanup EXIT
 
