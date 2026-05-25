@@ -1,35 +1,29 @@
 # Neeva for iOS
 
-Download on the [App Store](https://apps.apple.com/us/app/neeva-browser-search-engine/id1543288638).
+This repository is a maintained fork of Neeva's open-source iOS browser codebase.
 
 ## This branch (main)
 
-This branch works with [Xcode 13.0](https://apps.apple.com/us/app/xcode/id497799835), Swift 5.5 and supports iOS 14.0 and above.
-
-## Getting involved
-
-Check out our [Contributor Guidelines](https://github.com/neevaco/neeva-ios/blob/main/CONTRIBUTING.md)
-
-Want to contribute but don't know where to start? Here is a list of [good first issues](https://github.com/neevaco/neeva-ios/labels/good%20first%20issue).
+The inherited baseline targets Xcode 13.0, Swift 5.5, and iOS 14.0 and above. Modernization work should be scoped and validated incrementally because this browser fork has diverged substantially from upstream Firefox for iOS.
 
 ## Building the code
 
-1. Install the latest [Xcode developer tools](https://developer.apple.com/xcode/downloads/) from Apple.
-1. Install Carthage, Node, and a Python 3 virtualenv for localization scripts:
+1. Install Xcode developer tools from Apple.
+1. Install Carthage, Node, and a Python 3 virtual environment tool for localization scripts:
    ```shell
    brew update
    brew install carthage
    brew install node
    pip3 install virtualenv
    ```
-1. Clone the repository:
+1. Clone this repository:
    ```shell
-   git clone https://github.com/neevaco/neeva-ios.git
+   git clone https://github.com/outlaw-dame/forked-neeva-ios.git
    ```
 1. Pull in the project dependencies:
    ```shell
-   cd neeva-ios
-   sh ./bootstrap.sh
+   cd forked-neeva-ios
+   ./bootstrap.sh
    ```
 1. Open `Client.xcodeproj` in Xcode.
 1. Build the `Client` scheme in Xcode.
@@ -58,7 +52,7 @@ This reduces the total possible number of User Scripts down to four. The compile
 - `MainFrameAtDocumentEnd.js`
 - `MainFrameAtDocumentStart.js`
 
-To simplify the build process, these compiled files are checked-in to this repository. When adding or editing User Scripts, these files can be re-compiled with `webpack` manually. This requires Node.js to be installed and all required `npm` packages can be installed by running `npm install` in the root directory of the project. User Scripts can be compiled by running the following `npm` command in the root directory of the project:
+To simplify the build process, these compiled files are checked in to this repository. When adding or editing User Scripts, these files can be recompiled with `webpack` manually. This requires Node.js to be installed and all required `npm` packages can be installed by running `npm install` in the root directory of the project. User Scripts can be compiled by running the following command in the root directory of the project:
 
 ```
 npm run build
@@ -73,13 +67,11 @@ To use Periphery, first install it using [Homebrew](https://brew.sh):
 brew tap peripheryapp/periphery && brew install periphery
 ```
 
-Then switch to the Periphery target in Xcode and build (⌘B). You‘ll get a large number of warnings as a result. Note that many of the warnings are either false positives (i.e. the constant is actually used somewhere in the project) or are due to parameters passed in iOS’s standard delegate pattern.
+Then switch to the Periphery target in Xcode and build (⌘B). You will get a large number of warnings as a result. Note that many of the warnings are either false positives or are due to parameters passed in iOS's standard delegate pattern.
 
 ## History of the codebase
 
 The Neeva browser stands on the shoulders of the excellent [Firefox for iOS](https://github.com/mozilla-mobile/firefox-ios) browser.
-We forked on Feb 18 at [c23bd56293da4e2913e1d512ee559e784dd21e48](https://github.com/neevaco/neeva-ios/commit/c23bd56293da4e2913e1d512ee559e784dd21e48),
-and the project has diverged substantially enough that it hasn't made sense to merge updates since.
+Neeva forked Firefox for iOS on Feb 18, 2021 at `c23bd56293da4e2913e1d512ee559e784dd21e48`, and the project later diverged substantially enough that upstream Firefox changes were not continuously merged.
 
-Thank you to Mozilla for providing such a fantastic foundation for this project
-and many others.
+Thank you to Mozilla for providing such a fantastic foundation for this project and many others.

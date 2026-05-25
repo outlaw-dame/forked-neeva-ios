@@ -1,13 +1,13 @@
 {
   "name": "neeva-ios",
   "version": "1.0.0",
-  "description": "Neeva for iOS",
+  "description": "Neeva for iOS maintained fork",
   "scripts": {
     "build": "webpack --config webpack.config.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://https://github.com/neevaco/neeva-ios"
+    "url": "git+https://github.com/outlaw-dame/forked-neeva-ios.git"
   },
   "license": "MPL-2.0",
   "dependencies": {
