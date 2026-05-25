@@ -1,0 +1,65 @@
+name: iOS build baseline
+
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-build-baseline-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  simulator-build:
+    name: Simulator build baseline
+    runs-on: macos-14
+    timeout-minutes: 90
+    env:
+      NODE_OPTIONS: --openssl-legacy-provider
+      SKIP_SWIFT_FORMAT_BUILD: '1'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          submodules: recursive
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install Carthage
+        run: brew install carthage
+
+      - name: Verify shared Client scheme exists
+        run: |
+          ls Client.xcodeproj/xcshareddata/xcschemes
+          test -f Client.xcodeproj/xcshareddata/xcschemes/Client.xcscheme
+
+      - name: Bootstrap dependencies
+        timeout-minutes: 45
+        run: ./bootstrap.sh
+
+      - name: Build Client for simulator without signing
+        timeout-minutes: 45
+        run: |
+          xcodebuild \
+            -project Client.xcodeproj \
+            -scheme Client \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY= \
+            build
