@@ -1,0 +1,55 @@
+name: Tooling validation
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: tooling-validation-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  shell-and-node-tooling:
+    name: Shell and Node tooling
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Validate shell syntax
+        run: |
+          bash -n bootstrap.sh
+          bash -n carthage_command.sh
+          bash -n Scripts/build-api-config.sh
+          bash -n Scripts/lib/retry.sh
+
+      - name: Exercise config rendering
+        run: bash Scripts/build-api-config.sh
+
+      - name: Verify generated config exists
+        run: test -f Client/APIConfig.xcconfig
+
+      - name: Verify generated config placeholders were replaced
+        run: '! grep -q ''\$[A-Z][A-Z0-9_]*'' Client/APIConfig.xcconfig'
+
+      - name: Install Node dependencies deterministically
+        run: npm ci --ignore-scripts
+
+      - name: Build checked-in user scripts
+        env:
+          NODE_OPTIONS: --openssl-legacy-provider
+        run: npm run build

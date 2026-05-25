@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 #
 # This Source Code Form is subject to the terms of the Mozilla Public
@@ -13,26 +13,38 @@
 # Use the --importLocales option to fetch and update locales only
 #
 
+set -euo pipefail
+
+# shellcheck source=Scripts/lib/retry.sh
+source Scripts/lib/retry.sh
+
+remove_path() {
+  local path="$1"
+  if [[ -e "${path}" || -L "${path}" ]]; then
+    rm -rf -- "${path}"
+  fi
+}
+
 getLocale()
 {
   echo "Getting locale..."
-  git clone https://github.com/boek/ios-l10n-scripts.git -b new_tool || exit 1
+  retry_with_backoff git clone --branch new_tool --single-branch https://github.com/boek/ios-l10n-scripts.git
 
   echo "Creating firefoxios-l10n Git repo"
-  rm -rf firefoxios-l10n
-  git clone --depth 1 https://github.com/mozilla-l10n/firefoxios-l10n firefoxios-l10n || exit 1
+  remove_path firefoxios-l10n
+  retry_with_backoff git clone --depth 1 https://github.com/mozilla-l10n/firefoxios-l10n firefoxios-l10n
 }
 
-if [ "$1" == "--force" ]; then
-    rm -rf firefoxios-l10n
-    rm -rf ios-l10n-scripts
-    rm -rf Carthage/*
-    rm -rf ~/Library/Caches/org.carthage.CarthageKit
+if [[ "${1:-}" == "--force" ]]; then
+    remove_path firefoxios-l10n
+    remove_path ios-l10n-scripts
+    remove_path Carthage
+    remove_path "${HOME}/Library/Caches/org.carthage.CarthageKit"
 fi
 
-if [ "$1" == "--importLocales" ]; then
+if [[ "${1:-}" == "--importLocales" ]]; then
   # Import locales
-  if [ -d "/firefoxios-l10n" ] && [ -d "/ios-l10n-scripts" ]; then
+  if [[ -d "firefoxios-l10n" && -d "ios-l10n-scripts" ]]; then
       echo "l10n directories found. Not downloading scripts."
   else
       echo "l10n directory not found. Downloading repo and scripts."
@@ -43,18 +55,23 @@ if [ "$1" == "--importLocales" ]; then
   exit 0
 fi
 
-# Build API Config
-Scripts/build-api-config.sh
+# Build generated config
+bash Scripts/build-api-config.sh
 
 # Run carthage
-./carthage_command.sh
+bash carthage_command.sh
 
 # Install Node.js dependencies and build user scripts
-
-npm install
+if [[ -f package-lock.json ]]; then
+  retry_with_backoff npm ci
+else
+  retry_with_backoff npm install
+fi
 npm run build
 
 # swift-format
-git submodule update --init --recursive
-cd swift-format
-swift build -c release
+retry_with_backoff git submodule update --init --recursive
+(
+  cd swift-format
+  swift build -c release
+)
