@@ -48,9 +48,7 @@ def escape_xcconfig_value(value: str) -> str:
         .replace("\n", "\\n")
         .replace('"', '\\"')
     )
-    while "//" in value:
-        value = value.replace("//", "/$()/")
-    return value
+    return re.sub(r"/(?=/)", "/$()", value)
 
 
 def replacement(match) -> str:
