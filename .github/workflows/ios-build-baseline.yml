@@ -21,6 +21,7 @@ jobs:
     timeout-minutes: 90
     env:
       NODE_OPTIONS: --openssl-legacy-provider
+      SKIP_SWIFT_FORMAT_BUILD: '1'
     steps:
       - name: Check out repository
         uses: actions/checkout@v4
