@@ -71,8 +71,12 @@ fi
 npm run build
 
 # swift-format
-retry_with_backoff git submodule update --init --recursive
-(
-  cd swift-format
-  swift build -c release
-)
+if [[ "${SKIP_SWIFT_FORMAT_BUILD:-0}" == "1" ]]; then
+  echo "Skipping swift-format build because SKIP_SWIFT_FORMAT_BUILD=1" >&2
+else
+  retry_with_backoff git submodule update --init --recursive
+  (
+    cd swift-format
+    swift build -c release
+  )
+fi
