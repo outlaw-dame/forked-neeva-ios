@@ -40,15 +40,17 @@ missing = set()
 
 
 def escape_xcconfig_value(value: str) -> str:
-    return (
+    value = (
         value
         .replace("$", "$$")
         .replace("\\", "\\\\")
-        .replace("//", "/$()/")
         .replace("\r", "\\r")
         .replace("\n", "\\n")
         .replace('"', '\\"')
     )
+    while "//" in value:
+        value = value.replace("//", "/$()/")
+    return value
 
 
 def replacement(match) -> str:
