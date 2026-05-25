@@ -42,6 +42,7 @@ jobs:
 
       - name: Bootstrap dependencies
         env:
+          NODE_OPTIONS: --openssl-legacy-provider
           RETRY_MAX_ATTEMPTS: '3'
         run: ./bootstrap.sh
 
