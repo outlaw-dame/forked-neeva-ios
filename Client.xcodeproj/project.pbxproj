@@ -7952,7 +7952,7 @@
 			repositoryURL = "https://github.com/skywinder/web3swift";
 			requirement = {
 				kind = revision;
-				revision = 6ebfd9a5f19a3d9cd0fbaa478c9408c81847d836;
+				revision = e5e339b65cd1da3208b92a4bfcbc97e0f298d8a9;
 			};
 		};
 		C82719EB26FE734500EC9EF9 /* XCRemoteSwiftPackageReference "sindresorhus-Defaults" */ = {
