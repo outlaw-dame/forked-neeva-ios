@@ -7952,7 +7952,7 @@
 			repositoryURL = "https://github.com/skywinder/web3swift";
 			requirement = {
 				kind = revision;
-				revision = e5e339b65cd1da3208b92a4bfcbc97e0f298d8a9;
+				revision = f48d7a9e842c31559ad732786a8346d07dcae7e8;
 			};
 		};
 		C82719EB26FE734500EC9EF9 /* XCRemoteSwiftPackageReference "sindresorhus-Defaults" */ = {
@@ -7983,8 +7983,8 @@
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/siteline/SwiftUI-Introspect";
 			requirement = {
-				kind = upToNextMinorVersion;
-				minimumVersion = 0.1.3;
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.3.0;
 			};
 		};
 		C9D4565526558F360047267A /* XCRemoteSwiftPackageReference "Reachability" */ = {
@@ -7997,10 +7997,10 @@
 		};
 		C9D4565826558F400047267A /* XCRemoteSwiftPackageReference "SFSafeSymbols" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/piknotech/SFSafeSymbols";
+			repositoryURL = "https://github.com/SFSafeSymbols/SFSafeSymbols";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 2.1.3;
+				minimumVersion = 7.0.0;
 			};
 		};
 		C9DF56C2266A89EA009A2E6C /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
@@ -8067,7 +8067,7 @@
 		C9C18E5E265599C4004710CD /* Introspect */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = C9D4565226558F270047267A /* XCRemoteSwiftPackageReference "SwiftUI-Introspect" */;
-			productName = Introspect;
+			productName = SwiftUIIntrospect;
 		};
 		C9DF56C3266A89EA009A2E6C /* SDWebImageSwiftUI */ = {
 			isa = XCSwiftPackageProductDependency;
