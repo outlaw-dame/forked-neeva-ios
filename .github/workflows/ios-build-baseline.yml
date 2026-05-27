@@ -38,6 +38,17 @@ jobs:
           node-version: '20'
           cache: npm
 
+      - name: Restore Carthage cache
+        uses: actions/cache@v4
+        id: carthage-cache
+        with:
+          path: |
+            ~/Library/Caches/org.carthage.CarthageKit
+            Carthage/Build
+          key: carthage-${{ runner.os }}-${{ hashFiles('Cartfile.resolved') }}
+          restore-keys: |
+            carthage-${{ runner.os }}-
+
       - name: Install Carthage
         run: brew install carthage
 
@@ -47,8 +58,13 @@ jobs:
           test -f Client.xcodeproj/xcshareddata/xcschemes/Client.xcscheme
 
       - name: Bootstrap dependencies
+        if: steps.carthage-cache.outputs.cache-hit != 'true'
         timeout-minutes: 45
         run: ./bootstrap.sh
+
+      - name: Dependencies restored from cache
+        if: steps.carthage-cache.outputs.cache-hit == 'true'
+        run: echo "Carthage cache hit — skipping bootstrap"
 
       - name: Build Client for simulator without signing
         timeout-minutes: 45
