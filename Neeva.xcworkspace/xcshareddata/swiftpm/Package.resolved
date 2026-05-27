@@ -15,8 +15,8 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/attaswift/BigInt.git",
       "state": {
-        "revision": "0ed110f7555c34ff468e72e1686e59721f2b0da6",
-        "version": "5.3.0"
+        "revision": "793a7fac0bfc318e85994bf6900652e827aef33e",
+        "version": "5.4.1"
       }
     },
     {
@@ -92,6 +92,15 @@
       }
     },
     {
+      "identity": "secp256k1.swift",
+      "kind": "remoteSourceControl",
+      "location": "https://github.com/GigaBitcoin/secp256k1.swift",
+      "state": {
+        "revision": "48fb20fce4ca3aad89180448a127d5bc16f0e44c",
+        "version": "0.10.0"
+      }
+    },
+    {
       "identity": "sfsafesymbols",
       "kind": "remoteSourceControl",
       "location": "https://github.com/piknotech/SFSafeSymbols",
@@ -141,7 +150,7 @@
       "kind": "remoteSourceControl",
       "location": "https://github.com/skywinder/web3swift",
       "state": {
-        "revision": "e5e339b65cd1da3208b92a4bfcbc97e0f298d8a9"
+        "revision": "f48d7a9e842c31559ad732786a8346d07dcae7e8"
       }
     }
   ],
