@@ -279,8 +279,7 @@ private struct SafariVCLink: View {
     let title: LocalizedStringKey
     let url: URL
 
-    @available(iOS 15.0, *)
-    private(set) lazy var token: SFSafariViewController.PrewarmingToken? = nil
+    private var token: Any? = nil
 
     @State private var modal = ModalState()
 
