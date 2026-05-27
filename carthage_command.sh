@@ -30,6 +30,9 @@ trap cleanup EXIT
   echo "IPHONEOS_DEPLOYMENT_TARGET=${deployment_target}"
   echo 'SWIFT_TREAT_WARNINGS_AS_ERRORS=NO'
   echo 'GCC_TREAT_WARNINGS_AS_ERRORS=NO'
+  # Fuzi 3.1.3 and other old Carthage deps have a macOS deployment target
+  # below 10.10, causing Foundation type availability errors under Xcode 26+.
+  echo 'MACOSX_DEPLOYMENT_TARGET=10.15'
 } > "${tmp_xcconfig}"
 chmod 600 "${tmp_xcconfig}"
 
