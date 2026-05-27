@@ -15,8 +15,9 @@
 
 set -euo pipefail
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=Scripts/lib/retry.sh
-source Scripts/lib/retry.sh
+source "${script_dir}/Scripts/lib/retry.sh"
 
 remove_path() {
   local path="$1"
@@ -56,10 +57,10 @@ if [[ "${1:-}" == "--importLocales" ]]; then
 fi
 
 # Build generated config
-bash Scripts/build-api-config.sh
+bash "${script_dir}/Scripts/build-api-config.sh"
 
 # Run carthage
-bash carthage_command.sh
+bash "${script_dir}/carthage_command.sh"
 
 # Install Node.js dependencies and build user scripts
 if [[ -f package-lock.json ]]; then

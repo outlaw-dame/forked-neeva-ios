@@ -2,8 +2,9 @@
 
 set -euo pipefail
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=Scripts/lib/retry.sh
-source Scripts/lib/retry.sh
+source "${script_dir}/Scripts/lib/retry.sh"
 
 if ! command -v carthage >/dev/null 2>&1; then
   echo "carthage is required. Install it with: brew install carthage" >&2
@@ -16,7 +17,7 @@ if [[ ! "${deployment_target}" =~ ^[0-9]+([.][0-9]+){0,2}$ ]]; then
   exit 64
 fi
 
-tmp_xcconfig="$(mktemp "${TMPDIR:-/tmp}/neeva-carthage.XXXXXX.xcconfig")"
+tmp_xcconfig="$(mktemp "${TMPDIR:-/tmp}/neeva-carthage.XXXXXX")"
 cleanup() {
   rm -f -- "${tmp_xcconfig}"
 }

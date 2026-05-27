@@ -42,14 +42,16 @@ missing = set()
 def escape_xcconfig_value(value: str) -> str:
     return (
         value
+        .replace("$", "$$")
         .replace("\\", "\\\\")
+        .replace("//", "/$()/")
         .replace("\r", "\\r")
         .replace("\n", "\\n")
         .replace('"', '\\"')
     )
 
 
-def replacement(match: re.Match[str]) -> str:
+def replacement(match: re.Match) -> str:
     name = match.group(1)
     value = os.environ.get(name)
     if value is None:
