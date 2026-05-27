@@ -68,24 +68,26 @@ struct SpaceCommentsView: View {
                         .foregroundColor(.ui.adaptive.blue)
                 }
             }
-            ScrollView(.vertical, showsIndicators: false) {
-                VStack(spacing: 12) {
-                    ForEach(space.comments, id: \.id) { comment in
-                        CommentView(comment: comment)
+            if let comments = space.comments {
+                ScrollView(.vertical, showsIndicators: false) {
+                    VStack(spacing: 12) {
+                        ForEach(comments, id: \.id) { comment in
+                            CommentView(comment: comment)
+                        }
+                        ForEach(model.addedComments, id: \.id) { comment in
+                            CommentView(comment: comment)
+                        }
+                        if model.addingComment {
+                            AddCommentView(
+                                commentText: $model.commentAdded,
+                                editing: $model.addingComment
+                            )
+                        }
                     }
-                    ForEach(model.addedComments, id: \.id) { comment in
-                        CommentView(comment: comment)
-                    }
-                    if model.addingComment {
-                        AddCommentView(
-                            commentText: $model.commentAdded,
-                            editing: $model.addingComment
-                        )
-                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.top, 12)
+                    .padding(.bottom, 16)
                 }
-                .frame(maxWidth: .infinity)
-                .padding(.top, 12)
-                .padding(.bottom, 16)
             }
         }
         .padding(.horizontal, 16)
