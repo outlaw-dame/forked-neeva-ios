@@ -411,17 +411,15 @@ public struct CheatsheetMenuView: View {
         {
             VStack(alignment: .leading, spacing: 10) {
                 Text("Price History").withFont(.headingMedium)
-                if let max = priceHistory.Max,
-                    !max.Price.isEmpty
-                {
+                if !priceHistory.Max.Price.isEmpty {
                     HStack {
                         Text("Highest: ").bold()
                         Text("$")
-                            + Text(max.Price)
+                            + Text(priceHistory.Max.Price)
 
-                        if !max.Date.isEmpty {
+                        if !priceHistory.Max.Date.isEmpty {
                             Text("(")
-                                + Text(max.Date)
+                                + Text(priceHistory.Max.Date)
                                 + Text(")")
                         }
                     }
@@ -429,17 +427,15 @@ public struct CheatsheetMenuView: View {
                     .withFont(unkerned: .bodyMedium)
                 }
 
-                if let min = priceHistory.Min,
-                    !min.Price.isEmpty
-                {
+                if !priceHistory.Min.Price.isEmpty {
                     HStack {
                         Text("Lowest: ").bold()
                         Text("$")
-                            + Text(min.Price)
+                            + Text(priceHistory.Min.Price)
 
-                        if !min.Date.isEmpty {
+                        if !priceHistory.Min.Date.isEmpty {
                             Text("(")
-                                + Text(min.Date)
+                                + Text(priceHistory.Min.Date)
                                 + Text(")")
                         }
                     }
@@ -447,13 +443,11 @@ public struct CheatsheetMenuView: View {
                     .withFont(unkerned: .bodyMedium)
                 }
 
-                if let average = priceHistory.Average,
-                    !average.Price.isEmpty
-                {
+                if !priceHistory.Average.Price.isEmpty {
                     HStack {
                         Text("Average: ").bold()
                         Text("$")
-                            + Text(average.Price)
+                            + Text(priceHistory.Average.Price)
                     }
                     .foregroundColor(.hex(0x555555))
                     .withFont(unkerned: .bodyMedium)
