@@ -7952,7 +7952,7 @@
 			repositoryURL = "https://github.com/outlaw-dame/web3swift";
 			requirement = {
 				kind = revision;
-				revision = e9fc4e449d78982c1103c562d9592f7f670205e0;
+				revision = 1ab4efcd747fbb4db736a38d484025fec837c99c;
 			};
 		};
 		C82719EB26FE734500EC9EF9 /* XCRemoteSwiftPackageReference "sindresorhus-Defaults" */ = {
