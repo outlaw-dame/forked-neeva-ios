@@ -38,6 +38,17 @@ jobs:
           cache: npm
           cache-dependency-path: 'package.json'
 
+      - name: Install Node dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --ignore-scripts
+          else
+            npm install --ignore-scripts
+          fi
+
+      - name: Build user scripts (webpack)
+        run: npm run build
+
       - name: Restore Carthage cache
         uses: actions/cache@v4
         id: carthage-cache
@@ -57,14 +68,18 @@ jobs:
           ls Client.xcodeproj/xcshareddata/xcschemes
           test -f Client.xcodeproj/xcshareddata/xcschemes/Client.xcscheme
 
-      - name: Bootstrap dependencies
+      - name: Bootstrap Carthage dependencies
         if: steps.carthage-cache.outputs.cache-hit != 'true'
         timeout-minutes: 45
-        run: ./bootstrap.sh
+        env:
+          SKIP_SWIFT_FORMAT_BUILD: '1'
+        run: |
+          bash Scripts/build-api-config.sh
+          bash carthage_command.sh
 
-      - name: Dependencies restored from cache
+      - name: Carthage dependencies restored from cache
         if: steps.carthage-cache.outputs.cache-hit == 'true'
-        run: echo "Carthage cache hit — skipping bootstrap"
+        run: echo "Carthage cache hit — skipping Carthage bootstrap"
 
       - name: Build Client for simulator without signing
         timeout-minutes: 45
