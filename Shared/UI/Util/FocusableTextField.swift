@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import SwiftUI
+import SwiftUIIntrospect
 
 @available(iOSApplicationExtension 15.0, *)
 struct FocusableTextField: View {
@@ -46,7 +47,7 @@ struct FocusableTextField: View {
                     focusTextField = true
                 }
             }
-            .introspectTextField { textField in
+            .introspect(.textField, on: .iOS(.v18)) { textField in
                 if focusTextField && needsToFocus {
                     needsToFocus = false
 

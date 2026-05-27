@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import Combine
+import SwiftUIIntrospect
 import Defaults
 import Shared
 import SwiftUI
@@ -97,7 +98,7 @@ struct CardScrollContainer<Content: View>: View {
         }
         .accessibilityIdentifier("CardGrid")
         .environment(\.columns, columns)
-        .introspectScrollView { scrollView in
+        .introspect(.scrollView, on: .iOS(.v18)) { scrollView in
             // This is to make sure the overlay card bleeds outside the horizontal and bottom
             // area in landscape mode. Clipping should be kept in portrait mode because
             // bottom tool bar needs to be shown.
