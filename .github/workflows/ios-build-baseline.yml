@@ -20,7 +20,6 @@ jobs:
     runs-on: macos-14
     timeout-minutes: 90
     env:
-      NODE_OPTIONS: --openssl-legacy-provider
       SKIP_SWIFT_FORMAT_BUILD: '1'
     steps:
       - name: Check out repository
@@ -37,6 +36,7 @@ jobs:
         with:
           node-version: '20'
           cache: npm
+          cache-dependency-path: 'package.json'
 
       - name: Restore Carthage cache
         uses: actions/cache@v4
