@@ -8000,7 +8000,7 @@
 			repositoryURL = "https://github.com/SFSafeSymbols/SFSafeSymbols";
 			requirement = {
 				kind = upToNextMajorVersion;
-				minimumVersion = 7.0.0;
+				minimumVersion = 6.2.0;
 			};
 		};
 		C9DF56C2266A89EA009A2E6C /* XCRemoteSwiftPackageReference "SDWebImageSwiftUI" */ = {
