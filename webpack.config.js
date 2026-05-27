@@ -40,5 +40,12 @@ module.exports = {
   module: {
     rules: []
   },
-  plugins: []
+  plugins: [],
+  // webpack 5 no longer auto-polyfills Node.js core modules. Explicitly
+  // map the `url` module used by page-metadata-parser to its browser build.
+  resolve: {
+    fallback: {
+      "url": require.resolve("url/")
+    }
+  }
 };
