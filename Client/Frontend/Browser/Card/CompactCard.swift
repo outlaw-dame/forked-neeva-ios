@@ -35,13 +35,11 @@ struct CompactCard<Details>: View where Details: TabCardDetails {
             }
 
             HStack {
-                if let favicon = details.favicon {
-                    favicon
-                        .frame(width: CardUX.FaviconSize, height: CardUX.FaviconSize)
-                        .cornerRadius(CardUX.FaviconCornerRadius)
-                        .padding(5)
-                        .padding(.vertical, 6)
-                }
+                details.favicon
+                    .frame(width: CardUX.FaviconSize, height: CardUX.FaviconSize)
+                    .cornerRadius(CardUX.FaviconCornerRadius)
+                    .padding(5)
+                    .padding(.vertical, 6)
 
                 if width > minimumContentWidthRequirement {
                     Text(details.title).withFont(.labelMedium)
