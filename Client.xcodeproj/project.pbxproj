@@ -7949,10 +7949,10 @@
 		};
 		BCAAA0CE276D979B0013223E /* XCRemoteSwiftPackageReference "web3swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/skywinder/web3swift";
+			repositoryURL = "https://github.com/outlaw-dame/web3swift";
 			requirement = {
 				kind = revision;
-				revision = f48d7a9e842c31559ad732786a8346d07dcae7e8;
+				revision = e9fc4e449d78982c1103c562d9592f7f670205e0;
 			};
 		};
 		C82719EB26FE734500EC9EF9 /* XCRemoteSwiftPackageReference "sindresorhus-Defaults" */ = {
