@@ -15,9 +15,9 @@ struct LocationEditView: View {
 
     var body: some View {
         ZStack(alignment: .leading) {
-            if let query = searchQuery.value, let completion = suggestionModel.completion {
+            if let completion = suggestionModel.completion {
                 HStack(spacing: 0) {
-                    Text(query)
+                    Text(searchQuery.value)
                         .foregroundColor(.clear)
                     Text(completion)
                         .padding(.vertical, 1)

@@ -36,12 +36,10 @@ struct BuyingGuideItem: View {
                                 Color(light: .brand.variant.blue, dark: Color(hex: 0x7cabe4)))
                         Spacer()
                     }
-                    if let productName = guide.productName {
-                        Text(productName)
-                            .lineLimit(1)
-                            .font(.system(size: 12))
-                        Spacer()
-                    }
+                    Text(guide.productName)
+                        .lineLimit(1)
+                        .font(.system(size: 12))
+                    Spacer()
                     if let reviewSummary = guide.reviewSummary {
                         Text(reviewSummary)
                             .lineLimit(2)
