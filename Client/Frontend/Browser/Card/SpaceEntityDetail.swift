@@ -160,9 +160,9 @@ struct SpaceEntityDetailView: View {
                         }
                         if showDescriptions,
                             case .retailProduct(let product) = details.data.previewEntity,
-                            let descriptions = product.description, !descriptions.isEmpty
+                            !product.description.isEmpty
                         {
-                            ForEach(descriptions, id: \.self) { description in
+                            ForEach(product.description, id: \.self) { description in
                                 Text(description)
                                     .withFont(.bodyLarge)
                                     .modifier(DescriptionTextModifier())
