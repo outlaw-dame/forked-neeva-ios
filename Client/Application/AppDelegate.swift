@@ -60,6 +60,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UIViewControllerRestorati
 
         lateInitializedProfile = createProfile()
 
+        // STANDALONE BROWSER MODE
+        // Neeva's authentication servers are no longer available (the company shut
+        // down in 2023). Bypass sign-in unconditionally so the browser runs without
+        // a Neeva account.  The intro/onboarding screen and the Neeva-branded
+        // preview-home page are both skipped; the user lands directly in the browser.
+        Defaults[.introSeen] = true
+        Defaults[.signedInOnce] = true
+        Defaults[.didFirstNavigation] = true
+
         // Set up a web server that serves us static content. Do this early so that it is ready when the UI is presented.
         setUpWebServer(profile)
 
