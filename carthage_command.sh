@@ -38,4 +38,22 @@ chmod 600 "${tmp_xcconfig}"
 
 export XCODE_XCCONFIG_FILE="${tmp_xcconfig}"
 
-retry_with_backoff carthage bootstrap --platform ios --color auto --cache-builds --use-xcframeworks
+# Step 1: check out sources only — do NOT build yet.
+retry_with_backoff carthage checkout
+
+# Step 2: patch Fuzi's xcodeproj so its MACOSX_DEPLOYMENT_TARGET no longer
+# falls below 10.10.  XCODE_XCCONFIG_FILE cannot override a setting that is
+# hard-coded in a target's buildSettings block inside project.pbxproj, so we
+# must fix it in-place before invoking the compiler.
+# Fuzi 3.1.3 was last updated in 2020 and ships with MACOSX_DEPLOYMENT_TARGET
+# as low as 10.9; Xcode 26+ treats that as an error for Foundation types.
+fuzi_checkout="${script_dir}/Carthage/Checkouts/Fuzi"
+if [[ -d "${fuzi_checkout}" ]]; then
+  echo "Patching Fuzi MACOSX_DEPLOYMENT_TARGET → 10.15"
+  find "${fuzi_checkout}" -name "*.pbxproj" -print0 | \
+    xargs -0 sed -i '' \
+      's/MACOSX_DEPLOYMENT_TARGET = [0-9][0-9.]*;/MACOSX_DEPLOYMENT_TARGET = 10.15;/g'
+fi
+
+# Step 3: build from the now-patched checkouts.
+retry_with_backoff carthage build --platform ios --color auto --cache-builds --use-xcframeworks
