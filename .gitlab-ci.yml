@@ -1,0 +1,160 @@
+# iOS build baseline — GitLab CI equivalent of .github/workflows/ios-build-baseline.yml
+#
+# Runs on the self-hosted macOS runner.
+# Triggers on merge request events OR on direct branch pushes that do NOT already
+# have an open MR (avoids running duplicate pipelines for the same commit).
+
+default:
+  tags:
+    - macos-self-hosted
+  # Auto-cancel pending/running jobs for the same ref when a newer pipeline
+  # supersedes them.  Keeps the single-threaded runner queue from filling up.
+  interruptible: true
+
+workflow:
+  rules:
+    # Always run for MR events (the canonical pipeline for open PRs).
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+    # Skip the redundant branch pipeline when an open MR already covers it.
+    - if: $CI_PIPELINE_SOURCE == "push" && $CI_OPEN_MERGE_REQUESTS
+      when: never
+    # Run on direct branch pushes (no open MR yet) and on web-triggered runs.
+    - if: $CI_COMMIT_BRANCH
+    - if: $CI_PIPELINE_SOURCE == "web"
+
+variables:
+  SKIP_SWIFT_FORMAT_BUILD: "1"
+  CARTHAGE_CACHE_KEY: "carthage-macos-${CI_COMMIT_REF_SLUG}"
+  # webpack 4 (used on older branches) calls createHash('md4') which OpenSSL 3
+  # (Node 17+) removed.  This flag re-enables the legacy provider so the build
+  # doesn't fail before xcodebuild even starts.  Branches that already use
+  # webpack 5 are unaffected — the flag is a no-op for them.
+  NODE_OPTIONS: "--openssl-legacy-provider"
+
+# ── Simulator build baseline ──────────────────────────────────────────────────
+simulator-build:
+  stage: build
+  timeout: 90 minutes
+
+  cache:
+    key:
+      files:
+        - Cartfile.resolved
+      prefix: "carthage-macos-v2"
+    paths:
+      - Carthage/Build/
+    policy: pull-push
+
+  before_script:
+    - xcodebuild -version
+    - node --version
+    - npm --version
+    - |
+      if [ -f package-lock.json ]; then
+        npm ci --ignore-scripts
+      else
+        npm install --ignore-scripts
+      fi
+    - npm run build
+    - which carthage || brew install carthage
+
+  script:
+    - bash Scripts/build-api-config.sh
+    - |
+      if [ -d Carthage/Build ] && [ "$(ls -A Carthage/Build)" ]; then
+        echo "Carthage cache restored — skipping bootstrap"
+      else
+        bash carthage_command.sh
+      fi
+    - |
+      # Force xcodebuild to re-resolve all SPM packages from Package.resolved.
+      # workspace-state.json in SourcePackages caches pinned revisions and
+      # overrides Package.resolved — deleting the whole SourcePackages dir
+      # forces a clean re-resolve so pin bumps take effect immediately.
+      rm -rf ~/Library/Developer/Xcode/DerivedData/Client-*/SourcePackages
+    - |
+      xcodebuild \
+        -project Client.xcodeproj \
+        -scheme Client \
+        -configuration Debug \
+        -sdk iphonesimulator \
+        -destination 'generic/platform=iOS Simulator' \
+        CODE_SIGNING_ALLOWED=NO \
+        CODE_SIGNING_REQUIRED=NO \
+        CODE_SIGN_IDENTITY= \
+        build
+
+  artifacts:
+    when: on_failure
+    expire_in: 3 days
+    paths:
+      - /tmp/xcodebuild-*.log
+
+# ── Xcode 26 compatibility check (informational / allowed to fail) ────────────
+xcode26-check:
+  stage: build
+  timeout: 90 minutes
+  allow_failure: true
+
+  variables:
+    # Xcode 26 is the system default on this runner — no override needed
+    DEVELOPER_DIR: ""
+
+  cache:
+    key:
+      files:
+        - Cartfile.resolved
+      prefix: "carthage-macos-xc26-v2"
+    paths:
+      - Carthage/Build/
+    policy: pull-push
+
+  before_script:
+    - xcodebuild -version || true
+    - node --version
+    - |
+      if [ -f package-lock.json ]; then
+        npm ci --ignore-scripts
+      else
+        npm install --ignore-scripts
+      fi
+    - npm run build
+    - which carthage || brew install carthage
+
+  script:
+    - bash Scripts/build-api-config.sh
+    - |
+      if [ -d Carthage/Build ] && [ "$(ls -A Carthage/Build)" ]; then
+        echo "Carthage cache restored — skipping bootstrap"
+      else
+        bash carthage_command.sh
+      fi
+    - |
+      rm -rf ~/Library/Developer/Xcode/DerivedData/Client-*/SourcePackages
+    - |
+      set +e
+      xcodebuild \
+        -project Client.xcodeproj \
+        -scheme Client \
+        -configuration Debug \
+        -sdk iphonesimulator \
+        -destination 'generic/platform=iOS Simulator' \
+        CODE_SIGNING_ALLOWED=NO \
+        CODE_SIGNING_REQUIRED=NO \
+        CODE_SIGN_IDENTITY= \
+        SWIFT_STRICT_CONCURRENCY=targeted \
+        build 2>&1 | tee /tmp/xc26-build.log
+      BUILD_EXIT=$?
+      echo "=== Errors ==="
+      grep -c ": error:" /tmp/xc26-build.log || echo "0 errors"
+      grep ": error:" /tmp/xc26-build.log | head -30 || true
+      echo "=== Concurrency warnings ==="
+      grep -c "sendable\|actor\|isolation\|Sendable" /tmp/xc26-build.log || echo "0"
+      grep "sendable\|actor isolation\|Sendable" /tmp/xc26-build.log | head -20 || true
+      exit $BUILD_EXIT
+
+  artifacts:
+    when: always
+    expire_in: 3 days
+    paths:
+      - /tmp/xc26-build.log
