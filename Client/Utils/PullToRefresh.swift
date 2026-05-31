@@ -6,7 +6,6 @@
 // https://github.com/siteline/SwiftUIRefresh/blob/fa8fac7b5eb5c729983a8bef65f094b5e0d12014/Sources/PullToRefresh.swift
 
 import Apollo
-import Combine
 import SwiftUIIntrospect
 import Shared
 import SwiftUI
@@ -27,34 +26,29 @@ private struct StorageView<Content: View, Query: GraphQLQuery, Data>: View {
     let content: Content
     let controller: QueryController<Query, Data>
 
-    @State var storage: Set<AnyCancellable> = []
     var body: some View {
         // NB: this should be fairly easy to convert to work with scroll views as well, we just need
         //     to specify at the call site which type of view we're looking for.
-        content.introspect(.list, on: .iOS(.v18)) { collectionView in
+        content.introspect(.list, on: .iOS(.v18, .v26)) { collectionView in
             if collectionView.refreshControl == nil {
-                collectionView.refreshControl = UIRefreshControl()
-                collectionView.refreshControl!.addAction(
+                let refreshControl = UIRefreshControl()
+                refreshControl.addAction(
                     UIAction(title: "Refresh", identifier: refreshActionID) { _ in
-                        collectionView.refreshControl!.beginRefreshing()
+                        refreshControl.beginRefreshing()
                         controller.reload()
                     }, for: .valueChanged)
+                collectionView.refreshControl = refreshControl
+            }
 
-                controller.$state
-                    .receive(on: RunLoop.main)
-                    .sink { state in
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                            if let rc = collectionView.refreshControl,
-                                rc.isRefreshing != state.isRunning
-                            {
-                                if state.isRunning {
-                                    rc.beginRefreshing()
-                                } else {
-                                    rc.endRefreshing()
-                                }
-                            }
-                        }
-                    }.store(in: &storage)
+            if let refreshControl = collectionView.refreshControl {
+                let isRunning = controller.state.isRunning
+                if refreshControl.isRefreshing != isRunning {
+                    if isRunning {
+                        refreshControl.beginRefreshing()
+                    } else {
+                        refreshControl.endRefreshing()
+                    }
+                }
             }
         }
     }
