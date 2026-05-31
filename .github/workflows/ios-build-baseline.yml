@@ -160,7 +160,9 @@ jobs:
 
       - name: Build with Xcode 26 (continue-on-error — informational)
         timeout-minutes: 45
+        shell: bash
         run: |
+          set -o pipefail
           xcodebuild \
             -project Client.xcodeproj \
             -scheme Client \
@@ -172,7 +174,6 @@ jobs:
             CODE_SIGN_IDENTITY= \
             SWIFT_STRICT_CONCURRENCY=targeted \
             build 2>&1 | tee /tmp/xc26-build.log
-          echo "Exit code: $?"
 
       - name: Summarise Xcode 26 errors and warnings
         if: always()
