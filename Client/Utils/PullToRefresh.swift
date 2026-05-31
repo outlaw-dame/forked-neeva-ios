@@ -29,7 +29,7 @@ private struct StorageView<Content: View, Query: GraphQLQuery, Data>: View {
     var body: some View {
         // NB: this should be fairly easy to convert to work with scroll views as well, we just need
         //     to specify at the call site which type of view we're looking for.
-        content.introspect(.list, on: .iOS(.v18, .v26)) { collectionView in
+        content.introspect(.list, on: .iOS(.v18)) { collectionView in
             if collectionView.refreshControl == nil {
                 let refreshControl = UIRefreshControl()
                 refreshControl.addAction(
