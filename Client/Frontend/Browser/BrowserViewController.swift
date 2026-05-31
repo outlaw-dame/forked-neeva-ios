@@ -511,7 +511,9 @@ class BrowserViewController: UIViewController, ModalPresenter {
             } else if !Defaults[.didFirstNavigation] {
                 self.showPreviewHome()
             } else if self.tabManager.normalTabs.isEmpty {
-                self.showTabTray()
+                // No tabs from a prior session — open a blank tab so the user
+                // lands in a usable browser rather than an empty tab tray.
+                self.tabManager.select(self.tabManager.addTab())
             }
         }
     }

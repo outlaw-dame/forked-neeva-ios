@@ -1,0 +1,187 @@
+name: iOS build baseline
+
+on:
+  pull_request:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-build-baseline-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  simulator-build:
+    name: Simulator build baseline
+    runs-on: macos-15
+    timeout-minutes: 90
+    env:
+      SKIP_SWIFT_FORMAT_BUILD: '1'
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          submodules: recursive
+
+      - name: Show Xcode version
+        run: xcodebuild -version
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: 'package.json'
+
+      - name: Install Node dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --ignore-scripts
+          else
+            npm install --ignore-scripts
+          fi
+
+      - name: Build user scripts (webpack)
+        run: npm run build
+
+      - name: Restore Carthage cache
+        uses: actions/cache@v4
+        id: carthage-cache
+        with:
+          path: |
+            ~/Library/Caches/org.carthage.CarthageKit
+            Carthage/Build
+          key: carthage-${{ runner.os }}-${{ hashFiles('Cartfile.resolved') }}
+          restore-keys: |
+            carthage-${{ runner.os }}-
+
+      - name: Install Carthage
+        run: brew install carthage
+
+      - name: Verify shared Client scheme exists
+        run: |
+          ls Client.xcodeproj/xcshareddata/xcschemes
+          test -f Client.xcodeproj/xcshareddata/xcschemes/Client.xcscheme
+
+      - name: Bootstrap Carthage dependencies
+        if: steps.carthage-cache.outputs.cache-hit != 'true'
+        timeout-minutes: 45
+        env:
+          SKIP_SWIFT_FORMAT_BUILD: '1'
+        run: |
+          bash Scripts/build-api-config.sh
+          bash carthage_command.sh
+
+      - name: Carthage dependencies restored from cache
+        if: steps.carthage-cache.outputs.cache-hit == 'true'
+        run: echo "Carthage cache hit — skipping Carthage bootstrap"
+
+      - name: Build Client for simulator without signing
+        timeout-minutes: 45
+        run: |
+          xcodebuild \
+            -project Client.xcodeproj \
+            -scheme Client \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY= \
+            build
+
+  xcode26-compat-check:
+    name: Xcode 26 compatibility check (informational)
+    runs-on: macos-15
+    timeout-minutes: 90
+    continue-on-error: true
+    env:
+      SKIP_SWIFT_FORMAT_BUILD: '1'
+      DEVELOPER_DIR: /Applications/Xcode_26.3.app/Contents/Developer
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          submodules: recursive
+
+      - name: Show Xcode 26 version
+        run: xcodebuild -version
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+          cache-dependency-path: 'package.json'
+
+      - name: Install Node dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --ignore-scripts
+          else
+            npm install --ignore-scripts
+          fi
+
+      - name: Build user scripts (webpack)
+        run: npm run build
+
+      - name: Restore Carthage cache (Xcode 26)
+        uses: actions/cache@v4
+        id: carthage-cache-xc26
+        with:
+          path: |
+            ~/Library/Caches/org.carthage.CarthageKit
+            Carthage/Build
+          key: carthage-${{ runner.os }}-xc26-${{ hashFiles('Cartfile.resolved') }}
+          restore-keys: |
+            carthage-${{ runner.os }}-xc26-
+
+      - name: Install Carthage
+        run: brew install carthage
+
+      - name: Bootstrap Carthage dependencies (Xcode 26)
+        if: steps.carthage-cache-xc26.outputs.cache-hit != 'true'
+        timeout-minutes: 45
+        env:
+          SKIP_SWIFT_FORMAT_BUILD: '1'
+        run: |
+          bash Scripts/build-api-config.sh
+          bash carthage_command.sh
+
+      - name: Carthage dependencies restored from cache
+        if: steps.carthage-cache-xc26.outputs.cache-hit == 'true'
+        run: echo "Carthage Xcode 26 cache hit — skipping bootstrap"
+
+      - name: Build with Xcode 26 (continue-on-error — informational)
+        timeout-minutes: 45
+        shell: bash
+        run: |
+          set -o pipefail
+          xcodebuild \
+            -project Client.xcodeproj \
+            -scheme Client \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY= \
+            SWIFT_STRICT_CONCURRENCY=targeted \
+            build 2>&1 | tee /tmp/xc26-build.log
+
+      - name: Summarise Xcode 26 errors and warnings
+        if: always()
+        run: |
+          echo "=== Errors ==="
+          grep -c ": error:" /tmp/xc26-build.log || echo "0 errors"
+          grep ": error:" /tmp/xc26-build.log | head -30 || true
+          echo ""
+          echo "=== Concurrency warnings ==="
+          grep -c "sendable\|actor\|isolation\|Sendable" /tmp/xc26-build.log || echo "0"
+          grep "sendable\|actor isolation\|Sendable" /tmp/xc26-build.log | head -20 || true

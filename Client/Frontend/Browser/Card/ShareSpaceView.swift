@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import Defaults
+import SwiftUIIntrospect
 import SDWebImageSwiftUI
 import Shared
 import SwiftUI
@@ -312,7 +313,7 @@ struct ShareSpaceView: View {
                                 .foregroundColor(.label)
                                 Color.label.frame(height: 1)
                             }
-                            .introspectTextField { textfield in
+                            .introspect(.textField, on: .iOS(.v18)) { textfield in
                                 textfield.becomeFirstResponder()
                             }
                         } else {

@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import Defaults
+import SwiftUIIntrospect
 import Shared
 import SwiftUI
 
@@ -84,7 +85,7 @@ struct CollapsedCardGroupView: View {
                     }
                 }
             }
-            .introspectScrollView { scrollView in
+            .introspect(.scrollView, on: .iOS(.v18)) { scrollView in
                 // Hack: trigger SwiftUI to run this code each time an instance of this View type is
                 // instantiated. This works by referencing an input parameter (groupDetails), which causes
                 // SwiftUI to think that this ViewModifier needs to be evaluated again.

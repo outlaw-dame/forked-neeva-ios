@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import SDWebImageSwiftUI
+import SwiftUIIntrospect
 import Shared
 import SwiftUI
 
@@ -126,7 +127,7 @@ struct AddCommentView: View {
         .background(Color.quaternarySystemFill)
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .frame(maxWidth: .infinity)
-        .introspectTextField { textField in
+        .introspect(.textField, on: .iOS(.v18)) { textField in
             textField.becomeFirstResponder()
         }
     }

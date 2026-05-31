@@ -3,6 +3,7 @@
 // found in the LICENSE file.
 
 import SwiftUI
+import SwiftUIIntrospect
 
 /// A custom `TextField` that matches our style — a rounded, gray background with slightly darker placeholder text than normal. We also add a clear button.
 /// TODO: make this into a `TextFieldStyle` when that becomes possible
@@ -123,7 +124,7 @@ public struct SingleLineTextField<Icon: View>: View {
                 textField
                     .accessibilityLabel(placeholder)
                     .withFont(unkerned: useCapsuleBackground ? .bodyMedium : .bodyLarge)
-                    .introspectTextField { textField in
+                    .introspect(.textField, on: .iOS(.v18)) { textField in
                         if #available(iOSApplicationExtension 15.0, *) {
                         } else {
                             if focusTextField && !focusedTextField {

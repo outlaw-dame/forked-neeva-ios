@@ -2,7 +2,7 @@
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file.
 
-import Introspect
+import SwiftUIIntrospect
 import SwiftUI
 
 /// # Why do we need `ViewControllerWrapper`?
@@ -87,16 +87,6 @@ public struct ViewControllerWrapperContext<Wrapper: ViewControllerWrapper> {
 
 // MARK: - Internals
 
-/// I found that `introspectViewController` could not find a view controller, but this produced good results.
-private func findViewController(in responder: UIResponder) -> UIViewController? {
-    if let vc = responder as? UIViewController {
-        return vc
-    } else if let next = responder.next {
-        return findViewController(in: next)
-    } else {
-        return nil
-    }
-}
 
 /// The SwiftUI view that handles the actual present/dismiss logic
 public struct ViewControllerWrapper_Presenter<Wrapper: ViewControllerWrapper>: View {
@@ -137,14 +127,10 @@ public struct ViewControllerWrapper_Presenter<Wrapper: ViewControllerWrapper>: V
     public var body: some View {
         // Reference `state` in the view body to make sure this view gets re-rendered whenever the state changes
         let _ = state
-        // use an EmptyView here because calling `introspect` on `self` results in an infinitely-nested view tree that crashes the app
-        return EmptyView().frame(width: 0, height: 0).introspect(selector: { $0 }) { view in
-            guard let vc = findViewController(in: view) else {
-                // disabled because the view controller sometimes can’t be found, but I’ve found this to not impact performance.
-                // print("**** UNEXPECTED FAILURE TO LOCATE VIEW CONTROLLER FOR LEGACY SHEET CONTAINING \(Delegate.Type.self)****")
-                return
-            }
-
+        // use introspect(.viewController) to find the nearest ancestor UIViewController;
+        // the old selector-based API is gone in SwiftUI-Introspect 1.x
+        return EmptyView().frame(width: 0, height: 0)
+            .introspect(.viewController, on: .iOS(.v18), scope: .ancestor) { vc in
             if let presentee = presentee {
                 presentee.update(using: wrapper)
 

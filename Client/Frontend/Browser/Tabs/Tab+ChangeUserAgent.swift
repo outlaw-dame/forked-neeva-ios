@@ -10,9 +10,17 @@ extension Tab {
         static var privateModeHostList = Set<String>()
 
         private static let file: URL = {
-            return FileManager.default.containerURL(
-                forSecurityApplicationGroupIdentifier: AppInfo.sharedContainerIdentifier)!
-                .appendingPathComponent("changed-ua-set-of-hosts.xcarchive")
+            // Use the shared app-group container when available (device builds with a
+            // provisioned team ID). Fall back to the app's own Caches directory for
+            // simulator or unsigned/ad-hoc builds where containerURL returns nil.
+            let filename = "changed-ua-set-of-hosts.xcarchive"
+            if let groupURL = FileManager.default.containerURL(
+                forSecurityApplicationGroupIdentifier: AppInfo.sharedContainerIdentifier)
+            {
+                return groupURL.appendingPathComponent(filename)
+            }
+            return FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
+                .appendingPathComponent(filename)
         }()
 
         private static var baseDomainList: Set<String> = {
