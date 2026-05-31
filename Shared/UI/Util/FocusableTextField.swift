@@ -47,7 +47,7 @@ struct FocusableTextField: View {
                     focusTextField = true
                 }
             }
-            .introspect(.textField, on: .iOS(.v18)) { textField in
+            .introspect(.textField, on: .iOS(.v18, .v26)) { textField in
                 if focusTextField && needsToFocus {
                     needsToFocus = false
 
