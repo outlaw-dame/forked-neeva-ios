@@ -53,13 +53,15 @@ def available_stacks():
 def largest_version():
     stacks = available_stacks()
     count = 0
+    largest = None
     for item in stacks:
         if pattern in item:
             p = parse_semver(item)
             if p:
-                if count == 0 or semver.compare(largest, p) == -1:
+                if largest is None or semver.compare(largest, p) == -1:
                     largest = p
-                count += 1
+    if largest is None:
+        return None
     return '{0}.x'.format(largest.split('.0')[0])
 
 if __name__ == '__main__':
@@ -72,7 +74,14 @@ if __name__ == '__main__':
     '''
 
     largest_semver = largest_version()
+    if largest_semver is None:
+        print('Could not find any Xcode stacks!')
+        sys.exit(0)
     tmp_file = 'tmp.yml'
+
+    if not os.path.exists(BITRISE_YML):
+        print(f'{BITRISE_YML} not found!')
+        sys.exit(0)
 
     with open(BITRISE_YML, 'r') as infile:
 
