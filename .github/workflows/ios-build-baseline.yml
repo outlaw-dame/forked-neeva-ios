@@ -1,0 +1,69 @@
+name: iOS build baseline
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ios-build-baseline-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  simulator-build:
+    name: Unsigned simulator build
+    runs-on: macos-14
+    timeout-minutes: 60
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          submodules: recursive
+
+      - name: Show Xcode version
+        run: |
+          xcodebuild -version
+          xcodebuild -showsdks
+
+      - name: Show available simulator runtimes
+        run: xcrun simctl list runtimes available
+
+      - name: Install Carthage
+        run: |
+          if ! command -v carthage >/dev/null 2>&1; then
+            brew install carthage
+          fi
+          carthage version
+
+      - name: Bootstrap dependencies
+        env:
+          NODE_OPTIONS: --openssl-legacy-provider
+          RETRY_MAX_ATTEMPTS: '3'
+        run: ./bootstrap.sh
+
+      - name: List schemes
+        run: xcodebuild -list -project Client.xcodeproj
+
+      - name: Build Client for simulator without signing
+        env:
+          NSUnbufferedIO: YES
+        run: |
+          set -euo pipefail
+          mkdir -p build
+          xcodebuild \
+            -project Client.xcodeproj \
+            -scheme Client \
+            -configuration Debug \
+            -sdk iphonesimulator \
+            -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO \
+            CODE_SIGNING_REQUIRED=NO \
+            CODE_SIGN_IDENTITY="" \
+            DEVELOPMENT_TEAM="" \
+            build | tee build/ios-build-baseline.log
