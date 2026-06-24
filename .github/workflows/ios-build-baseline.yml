@@ -49,6 +49,19 @@ jobs:
       - name: Build user scripts (webpack)
         run: npm run build
 
+      - name: Install Node dependencies
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci --ignore-scripts
+          else
+            npm install --ignore-scripts
+          fi
+
+      - name: Build user scripts (webpack)
+        env:
+          NODE_OPTIONS: --openssl-legacy-provider
+        run: npm run build
+
       - name: Restore Carthage cache
         uses: actions/cache@v4
         id: carthage-cache
